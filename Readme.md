@@ -360,3 +360,302 @@ SELECT City, SUM(TotalPrice) AS Total FROM Orders GROUP BY City HAVING SUM(Total
 
 // 100.000 TL üzerinde satış yapan şehirleri sıralar.
 ```
+
+## Veri Tipleri
+
+### bigint
+
+Tamsayı veri tipidir. 8 byte yer kaplar. -2^63 ile 2^63-1 arasında değer alır.
+
+### int
+
+Tamsayı veri tipidir. 4 byte yer kaplar. -2^31 ile 2^31-1 arasında değer alır.
+
+### smallint
+
+Tamsayı veri tipidir. 2 byte yer kaplar. -2^15 ile 2^15-1 arasında değer alır.
+
+### tinyint
+
+Tamsayı veri tipidir. 1 byte yer kaplar. 0 ile 255 arasında değer alır.
+
+### bit
+
+0 ve 1 değerlerini alır. 1 byte yer kaplar.
+
+### decimal / numeric
+
+Ondalıklı sayı veri tipidir. 1 byte yer kaplar. -10^38 ile 10^38 arasında değer alır.
+
+### money
+
+Ondalıklı sayı veri tipidir. 8 byte yer kaplar. -922337203685477.5808 ile 922337203685477.5807 arasında değer alır.
+
+### smallmoney
+
+Ondalıklı sayı veri tipidir. 4 byte yer kaplar. -214748.3648 ile 214748.3647 arasında değer alır.
+
+### float
+
+Ondalıklı sayı veri tipidir. 8 byte yer kaplar. -1.79E + 308 ile 1.79E + 308 arasında değer alır.
+
+### real
+
+Ondalıklı sayı veri tipidir. 4 byte yer kaplar. -3.40E + 38 ile 3.40E + 38 arasında değer alır.
+
+### varchar
+
+Değişken uzunluklu karakter veri tipidir.
+
+### char
+
+Sabit uzunluklu karakter veri tipidir. 
+
+### date 
+
+Tarih veri tipidir. 4 byte yer kaplar.
+
+### smalldate
+
+Tarih veri tipidir. 3 byte yer kaplar.
+
+### datetime
+
+Tarih ve zaman veri tipidir. 8 byte yer kaplar.
+
+### datetime2
+
+Tarih ve zaman veri tipidir. 8 byte yer kaplar.
+
+### datetimeoffset
+
+Tarih ve zaman veri tipidir. 10 byte yer kaplar.
+
+### time
+
+Zaman veri tipidir. 5 byte yer kaplar.
+
+## İlişkisel Veri Tabanı
+
+İlişkisel veri tabanı, verileri tablolar arasında ilişkiler oluşturarak tutan veri tabanıdır. Tablolar arasında ilişkiler oluşturmak için tablolar arasında ilişki kurulacak alanları belirlemek gerekir. Bu alanlara anahtar alan denir. 
+
+Örnek Kullanıcı Tablosu;
+
+|    ID     | Name | Surname |   AddressID   |
+|-----------|------|---------|---------------|
+|    1      | Joe  | Doe     |       1       |
+|    2      | John | Doe     |       2       |
+
+Adres tablosu;
+
+|    ID     | Address |   City   |
+|-----------|---------|----------|
+|    1      | 123     | New York |
+|    2      | 456     | New York |
+
+AddressID alanı kullanıcı tablosunda adres tablosunun ID alanı ile ilişkilendirilmiştir. 
+
+**Primary Key (Anahtar Alan)** : Tabloda benzersiz değer tutan alanlara denir.
+
+**Foreign Key (Yabancı Anahtar)** : İlişkili tabloların anahtar alanlarına denir.
+
+AddressID alanı kullanıcı tablosunda _foreign key (yabancı anahtar)_ olarak kullanılmıştır.
+
+### Script ile Tablo Oluşturma
+
+CREATE TABLE _tablo_adi_ (
+  _kolon_adi_ _veri_tipi_,
+  _kolon_adi_ _veri_tipi_, 
+  ...
+);
+
+```sql
+CREATE TABLE Customers (
+    ID int IDENTITY(1,1) PRIMARY KEY,
+    Name varchar(50) NOT NULL,
+    Surname varchar(50) NOT NULL,
+    AddressID int FOREIGN KEY REFERENCES Addresses(ID)
+)
+```
+
+Çıktı;
+
+|    ID     | Name | Surname |   AddressID   |
+|-----------|------|---------|---------------|
+|    1      | Joe  | Doe     |       1       |
+|    2      | John | Doe     |       2       |
+
+
+### Alias Kullanımı
+
+Tabloların kolonlarını kullanırken kolon adı yerine alias kullanılabilir. Alias, kolonun takma adıdır. Alias kullanmak için kolon adının yanına AS anahtar kelimesi ile takma adı yazılır.
+
+```sql
+SELECT U.Name, U.Surname, A.Cities FROM Users AS U, Addresses AS A WHERE U.ID = A.UserID AND U.Name = 'Joe'
+
+// 'Joe' isimli kullanıcının adı, soyadı ve adresi sıralanır.
+```
+
+**İlişkisel Tablolardan Veri Sorgulama ;**
+
+```sql
+SELECT
+A.KOLON1, A.KOLON2, B.KOLON3, B.KOLON4 ...
+FROM TABLO1 AS A
+JOIN TABLO2 AS B ON A.PRIMARY_KEY = B.FOREIGN_KEY
+```
+
+Örnek;
+
+```sql
+SELECT
+U.Name, U.Surname, A.Address, A.City
+FROM Users U
+JOIN Addresses A ON U.ID = A.UserID
+```
+
+#### INNER JOIN
+
+İki tablodaki ilişkili alanlara göre verileri birleştirir.
+
+```sql
+SELECT
+A.KOLON1, A.KOLON2, B.KOLON3, B.KOLON4 ...
+FROM TABLO1 AS A
+INNER JOIN TABLO2 AS B ON A.PRIMARY_KEY = B.FOREIGN_KEY
+```
+
+#### LEFT JOIN
+
+İki tablodaki ilişkili alanlara göre verileri birleştirir. Sol tablodaki tüm verileri getirir.
+
+```sql
+SELECT
+A.KOLON1, A.KOLON2, B.KOLON3, B.KOLON4 ...
+FROM TABLO1 AS A
+LEFT JOIN TABLO2 AS B ON A.PRIMARY_KEY = B.FOREIGN_KEY
+
+// A tablosundaki tüm verileri getirir.
+```
+
+#### RIGHT JOIN
+
+İki tablodaki ilişkili alanlara göre verileri birleştirir. Sağ tablodaki tüm verileri getirir.
+
+```sql
+SELECT
+A.KOLON1, A.KOLON2, B.KOLON3, B.KOLON4 ...
+FROM TABLO1 AS A
+RIGHT JOIN TABLO2 AS B ON A.PRIMARY_KEY = B.FOREIGN_KEY
+
+// B tablosundaki tüm verileri getirir.
+```
+
+#### FULL JOIN
+
+İki tablodaki ilişkili alanlara göre verileri birleştirir. İki tablodaki tüm verileri getirir.
+
+```sql
+SELECT
+A.KOLON1, A.KOLON2, B.KOLON3, B.KOLON4 ...
+FROM TABLO1 AS A
+FULL JOIN TABLO2 AS B ON A.PRIMARY_KEY = B.FOREIGN_KEY
+
+// A ve B tablosundaki tüm verileri getirir.
+```
+
+### String Fonksiyonları
+
+#### ASCII
+
+Verilen karakterin ASCII değerini döndürür.
+
+```sql
+SELECT ASCII('A')
+
+// 65
+```
+
+#### CHAR
+
+Verilen ASCII değerine karşılık gelen karakteri döndürür.
+
+```sql
+SELECT CHAR(65)
+
+// A
+```
+
+#### SUBSTRING
+
+Verilen karakter dizisinden belirtilen karakter aralığını döndürür.
+
+```sql
+SELECT SUBSTRING('Hello World', 1, 5)
+
+// Hello
+```
+
+#### LEN
+
+Verilen karakter dizisinin uzunluğunu döndürür.
+
+```sql
+SELECT LEN('Hello World')
+
+// 11
+```
+
+#### CHARINDEX
+
+Verilen karakter dizisinde aranan karakterin ilk bulunduğu indeksi döndürür.
+
+```sql
+SELECT CHARINDEX('o', 'Hello World')
+
+// 5
+```
+
+#### CONCAT
+
+Verilen karakter dizilerini birleştirir.
+
+```sql
+SELECT CONCAT('Hello', 'World')
+
+// HelloWorld
+```
+
+#### FORMAT
+
+Verilen sayıyı belirtilen formata göre döndürür.
+
+```sql
+SELECT FORMAT(123456.789, 'C')
+
+// $123,456.79
+```
+
+#### LEFT, RIGHT
+
+Verilen karakter dizisinden belirtilen karakter sayısını döndürür.
+
+```sql
+SELECT LEFT('Hello World', 5)
+
+// Hello
+
+SELECT RIGHT('Hello World', 5)
+
+// World
+```
+
+#### REPLACE
+
+Verilen karakter dizisinde aranan karakteri değiştirir.
+
+```sql
+SELECT REPLACE('Hello World', ' ', '-')
+
+// Hello-World
+``` 
